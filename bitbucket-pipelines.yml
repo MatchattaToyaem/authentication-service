@@ -1,0 +1,55 @@
+image: atlassian/default-image:4
+
+definitions:
+  steps:
+    - step: &build-push
+        name: Build and Push to ACR
+        services:
+          - docker
+        script:
+          - echo $ACR_PASSWORD | docker login oconnoraiplatform.azurecr.io
+              --username $ACR_USERNAME
+              --password-stdin
+          - docker build
+              --build-arg AZURE_ARTIFACTS_FEED_URL=$AZURE_ARTIFACTS_FEED_URL
+              --build-arg AZURE_ARTIFACTS_PAT=$AZURE_ARTIFACTS_PAT
+              -t oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT .
+          - docker tag oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT
+              oconnoraiplatform.azurecr.io/authentication-service:latest
+          - docker push oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT
+          - docker push oconnoraiplatform.azurecr.io/authentication-service:latest
+
+    - step: &deploy
+        name: Deploy to Azure Container Apps
+        script:
+          - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+          - az login --service-principal
+              --username $AZURE_CLIENT_ID
+              --password $AZURE_CLIENT_SECRET
+              --tenant $AZURE_TENANT_ID
+
+          # Inject secrets into yaml
+          - sed -i "s/PLACEHOLDER_ACR/$ACR_PASSWORD/g" authentication-service.yaml
+          - sed -i "s/PLACEHOLDER_VAULT/$AZURE_KEY_VAULT_NAME/g" authentication-service.yaml
+
+          - |
+            if az containerapp show --name authentication-service --resource-group ai-platform 2>/dev/null; then
+              az containerapp update \
+                --name authentication-service \
+                --resource-group ai-platform \
+                --image oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT
+            else
+              az containerapp create \
+                --name authentication-service \
+                --resource-group ai-platform \
+                --yaml authentication-service.yaml
+            fi
+
+pipelines:
+  default:
+    - step: *build-push
+
+  branches:
+    main:
+      - step: *build-push
+      - step: *deploy

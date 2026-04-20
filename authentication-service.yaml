@@ -1,0 +1,58 @@
+location: australiaeast
+resourceGroup: ai-platform
+type: Microsoft.App/containerApps
+name: authentication-service
+identity:
+  type: SystemAssigned
+properties:
+  environmentId: /subscriptions/53f34d3b-bdc7-4e68-89c4-0e4f1947eb31/resourceGroups/ai-platform/providers/Microsoft.App/managedEnvironments/managedEnvironment-aiplatform-8573
+  configuration:
+    registries:
+      - server: oconnoraiplatform.azurecr.io
+        username: oconnoraiplatform
+        passwordSecretRef: acr-password
+    secrets:
+      - name: acr-password
+        value: PLACEHOLDER_ACR
+      - name: jwt-secret
+        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/jwt-secret
+        identity: System
+      - name: db-password
+        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-password
+        identity: System
+      - name: db-url
+        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-url
+        identity: System
+      - name: db-username
+        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-username
+        identity: System
+    ingress:
+      external: true
+      targetPort: 8081
+      transport: http
+      allowInsecure: false
+  template:
+    containers:
+      - name: authentication-service
+        image: oconnoraiplatform.azurecr.io/authentication-service:latest
+        resources:
+          cpu: 0.5
+          memory: 1Gi
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: "prod"
+          - name: DB_URL
+            secretRef: db-url
+          - name: DB_USERNAME
+            secretRef: db-username
+          - name: DB_PASSWORD
+            secretRef: db-password
+          - name: JWT_SECRET
+            secretRef: jwt-secret
+          - name: JWT_ACCESS_TOKEN_EXPIRY
+            value: "900"
+          - name: JWT_REFRESH_TOKEN_EXPIRY
+            value: "604800"
+    scale:
+      minReplicas: 1
+      maxReplicas: 3
