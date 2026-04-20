@@ -1,0 +1,42 @@
+<!--
+  Shared Logback configuration fragment for all platform services.
+
+  Usage in your own logback-spring.xml:
+    (1) include resource="logback-shared.xml"
+    (2) reference the appenders in your root logger:
+        appender-ref ref="SHARED_CONSOLE"
+        appender-ref ref="SHARED_FILE"  (optional - only active when logging.file.name is set)
+
+  The LOG_FILE variable is automatically set by Spring Boot from "logging.file.name"
+  in your application.yml / application.properties.
+-->
+<included>
+
+    <!-- Pattern: timestamp | thread | level | [requestId from MDC] | logger | message -->
+    <property name="SHARED_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] %logger{36} - %msg%n"/>
+
+    <!-- ===== Console appender ===== -->
+    <appender name="SHARED_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${SHARED_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ===== Rolling file appender ===== -->
+    <!-- Only active when LOG_FILE is supplied (via logging.file.name in application.yml). -->
+    <appender name="SHARED_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE:-logs/app.log}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Archived files: logs/app.log.2026-04-14.0.gz -->
+            <fileNamePattern>${LOG_FILE:-logs/app.log}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${SHARED_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+</included>

@@ -21,37 +21,37 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
-}
-
-ext {
-    set('springCloudAzureVersion', "7.1.0")
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-    implementation 'org.springframework.boot:spring-boot-starter-session-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-session-jdbc'
-    implementation 'com.azure.spring:spring-cloud-azure-starter-actuator'
-    implementation 'com.azure.spring:spring-cloud-azure-starter-keyvault'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-rest-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-session-data-redis-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-session-jdbc-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "com.azure.spring:spring-cloud-azure-dependencies:${springCloudAzureVersion}"
+    maven {
+        name = 'AzureArtifacts'
+        url = System.env.AZURE_ARTIFACTS_FEED_URL
+                ?: project.findProperty('AZURE_ARTIFACTS_FEED_URL')
+        credentials {
+            username = 'AzureArtifacts'
+            password = System.env.AZURE_ARTIFACTS_PAT
+                    ?: project.findProperty('AZURE_ARTIFACTS_PAT')
+        }
     }
 }
 
-tasks.named('test') {
+dependencies {
+    // Shared security library (SecurityConfig, WebSocket security, logging filter, etc.)
+    implementation 'edu.oconnor:shared-security:1.0.6'
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
     useJUnitPlatform()
+    failOnNoDiscoveredTests = false
 }

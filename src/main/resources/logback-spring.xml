@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback configuration for the authentication-service.
+  The shared pattern/appenders come from logback-shared.xml (packaged in this jar)
+  so every other service that depends on this library can reuse them.
+-->
+<configuration>
+
+    <!-- Pull in the shared pattern + SHARED_CONSOLE + SHARED_FILE appenders -->
+    <include resource="logback-shared.xml"/>
+
+    <!-- Root logger: write to console (and file when logging.file.name is set) -->
+    <root level="INFO">
+        <appender-ref ref="SHARED_CONSOLE"/>
+        <appender-ref ref="SHARED_FILE"/>
+    </root>
+
+    <!-- Verbose security logging in non-prod profiles for token troubleshooting -->
+    <springProfile name="!prod">
+        <logger name="org.springframework.security" level="DEBUG"/>
+    </springProfile>
+
+    <!-- Keep request-logging filter at INFO in all profiles -->
+    <logger name="edu.oconnor.authenticationservice.filter.RequestLoggingFilter" level="INFO"/>
+
+</configuration>

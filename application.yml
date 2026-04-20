@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Replace YOUR_TENANT_ID with your actual Azure Tenant ID
+          issuer-uri: https://login.microsoftonline.com/dcd857fa-da1c-42e4-801b-702d52e946b1/v2.0
+
+# Logging — pattern is defined in logback-spring.xml (shared via logback-shared.xml)
+logging:
+  file:
+    name: logs/authentication-service.log
