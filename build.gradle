@@ -39,7 +39,7 @@ repositories {
 
 dependencies {
     // Shared security library (SecurityConfig, WebSocket security, logging filter, etc.)
-    implementation 'edu.oconnor:shared-security:1.0.6'
+    implementation 'edu.oconnor:shared-security:1.0.7'
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-web'
