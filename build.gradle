@@ -23,14 +23,16 @@ configurations {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        name = 'AzureArtifacts'
-        url = System.env.AZURE_ARTIFACTS_FEED_URL
-                ?: project.findProperty('AZURE_ARTIFACTS_FEED_URL')
-        credentials {
-            username = 'AzureArtifacts'
-            password = System.env.AZURE_ARTIFACTS_PAT
-                    ?: project.findProperty('AZURE_ARTIFACTS_PAT')
+    def feedUrl = System.env.AZURE_ARTIFACTS_FEED_URL ?: project.findProperty('AZURE_ARTIFACTS_FEED_URL')
+    if (feedUrl) {
+        maven {
+            name = 'AzureArtifacts'
+            url = feedUrl
+            credentials {
+                username = 'AzureArtifacts'
+                password = System.env.AZURE_ARTIFACTS_PAT
+                        ?: project.findProperty('AZURE_ARTIFACTS_PAT')
+            }
         }
     }
 }
