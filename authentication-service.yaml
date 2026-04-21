@@ -13,21 +13,21 @@ properties:
         passwordSecretRef: acr-password
     secrets:
       - name: acr-password
-        value: PLACEHOLDER_ACR
+        value: 
       - name: jwt-secret
-        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/jwt-secret
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/jwt-secret
         identity: System
       - name: db-password
-        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-password
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/db-password
         identity: System
       - name: db-url
-        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-url
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/db-url
         identity: System
       - name: db-username
-        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-username
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/db-username
         identity: System
       - name: jwt-issuer-uri
-        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/jwt-issuer-uri
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/jwt-issuer-uri
         identity: System
     ingress:
       external: true
