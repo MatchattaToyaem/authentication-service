@@ -26,6 +26,9 @@ properties:
       - name: db-username
         keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/db-username
         identity: System
+      - name: jwt-issuer-uri
+        keyVaultUrl: https://PLACEHOLDER_VAULT.vault.azure.net/secrets/jwt-issuer-uri
+        identity: System
     ingress:
       external: true
       targetPort: 8081
@@ -49,6 +52,8 @@ properties:
             secretRef: db-password
           - name: JWT_SECRET
             secretRef: jwt-secret
+          - name: JWT_ISSUER_URI
+            secretRef: jwt-issuer-uri
           - name: JWT_ACCESS_TOKEN_EXPIRY
             value: "900"
           - name: JWT_REFRESH_TOKEN_EXPIRY
