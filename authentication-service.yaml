@@ -30,7 +30,7 @@ properties:
         keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/jwt-issuer-uri
         identity: System
       - name: azure-client-secret
-        keyVaultUrl: https://ai-platform-keyvault-01.azure.net/secrets/azure-client-secret
+        keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/azure-client-secret
         identity: System
     ingress:
       external: true
