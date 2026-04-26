@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,7 +51,7 @@ public class JwtTokenProvider {
     }
 
     /** Create a signed access JWT with the given user claims. */
-    public String createAccessToken(String subject, String email, String name) {
+    public String createAccessToken(String subject, String email, String name, List<String> roles) {
         Instant now = Instant.now();
         JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
                 .subject(subject)
@@ -60,6 +61,9 @@ public class JwtTokenProvider {
                 .claim("email", email != null ? email : "");
         if (name != null) {
             claims.claim("name", name);
+        }
+        if (roles != null && !roles.isEmpty()) {
+            claims.claim("roles", roles);
         }
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();

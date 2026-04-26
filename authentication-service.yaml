@@ -58,6 +58,42 @@ properties:
             value: "900"
           - name: JWT_REFRESH_TOKEN_EXPIRY
             value: "604800"
+          # Directs Spring Boot's rolling file appender to the shared log volume
+          - name: LOGGING_FILE_NAME
+            value: "/var/log/app/authentication-service.log"
+        volumeMounts:
+          - volumeName: app-logs
+            mountPath: /var/log/app
+
+      # Filebeat sidecar — reads log files and ships them to Elasticsearch.
+      # Build and push the image before deploying:
+      #   docker build -t oconnoraiplatform.azurecr.io/filebeat:latest kibana/filebeat/
+      #   docker push oconnoraiplatform.azurecr.io/filebeat:latest
+      - name: filebeat
+        image: oconnoraiplatform.azurecr.io/filebeat:v5
+        resources:
+          cpu: 0.25
+          memory: 0.5Gi
+        env:
+          - name: ELASTICSEARCH_HOST
+            value: "http://elasticsearch.internal.proudground-90080d26.australiaeast.azurecontainerapps.io:80"
+          - name: ELASTICSEARCH_USERNAME
+            value: "elastic"
+          - name: ELASTICSEARCH_PASSWORD
+            value: "KZjpxzuWoYx41YLhggNx"
+          - name: APP_SERVICE
+            value: "authentication-service"
+          - name: INDEX_NAME
+            value: "auth-service"
+        volumeMounts:
+          - volumeName: app-logs
+            mountPath: /var/log/app
+
+    volumes:
+      # Shared ephemeral volume — both containers in the same replica see the same files
+      - name: app-logs
+        storageType: EmptyDir
+
     scale:
       minReplicas: 1
       maxReplicas: 3

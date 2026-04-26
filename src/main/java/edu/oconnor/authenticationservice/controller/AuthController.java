@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,9 +52,11 @@ public class AuthController {
             String userId = azureJwt.getSubject();
             String email = azureJwt.getClaimAsString("preferred_username");
             String name = azureJwt.getClaimAsString("name");
+            List<String> roles = azureJwt.getClaim("roles");
+            if (roles == null) roles = List.of();
 
-            String accessToken = tokenProvider.createAccessToken(userId, email, name);
-            String refreshToken = refreshTokenService.createAndStore(userId, email, name);
+            String accessToken = tokenProvider.createAccessToken(userId, email, name, roles);
+            String refreshToken = refreshTokenService.createAndStore(userId, email, name, roles);
 
             log.info("Token exchanged for user: {}", email);
             return ResponseEntity.ok(
@@ -76,9 +79,10 @@ public class AuthController {
                     String userId = (String) row.get("user_id");
                     String email = (String) row.get("user_email");
                     String name = (String) row.get("user_name");
+                    List<String> roles = RefreshTokenService.parseRoles((String) row.get("user_roles"));
 
-                    String accessToken = tokenProvider.createAccessToken(userId, email, name);
-                    String newRefreshToken = refreshTokenService.createAndStore(userId, email, name);
+                    String accessToken = tokenProvider.createAccessToken(userId, email, name, roles);
+                    String newRefreshToken = refreshTokenService.createAndStore(userId, email, name, roles);
 
                     log.info("Token refreshed for user: {}", email);
                     return ResponseEntity.ok(
