@@ -3,6 +3,7 @@ package edu.oconnor.authenticationservice.controller;
 import edu.oconnor.authenticationservice.model.RefreshTokenRequest;
 import edu.oconnor.authenticationservice.model.TokenExchangeRequest;
 import edu.oconnor.authenticationservice.model.TokenResponse;
+import edu.oconnor.authenticationservice.service.AzureGraphService;
 import edu.oconnor.authenticationservice.service.JwtTokenProvider;
 import edu.oconnor.authenticationservice.service.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,13 +35,16 @@ public class AuthController {
     private final JwtDecoder azureJwtDecoder;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final AzureGraphService azureGraphService;
 
     public AuthController(@Qualifier("azureJwtDecoder") JwtDecoder azureJwtDecoder,
                           JwtTokenProvider tokenProvider,
-                          RefreshTokenService refreshTokenService) {
+                          RefreshTokenService refreshTokenService,
+                          AzureGraphService azureGraphService) {
         this.azureJwtDecoder = azureJwtDecoder;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
+        this.azureGraphService = azureGraphService;
     }
 
     /** Exchange a valid Azure AD access token for platform access + refresh tokens. */
@@ -50,10 +54,10 @@ public class AuthController {
             Jwt azureJwt = azureJwtDecoder.decode(request.azureToken());
 
             String userId = azureJwt.getSubject();
+            String oid = azureJwt.getClaimAsString("oid");
             String email = azureJwt.getClaimAsString("preferred_username");
             String name = azureJwt.getClaimAsString("name");
-            List<String> roles = azureJwt.getClaim("roles");
-            if (roles == null) roles = List.of();
+            List<String> roles = azureGraphService.getRolesForUser(oid);
 
             String accessToken = tokenProvider.createAccessToken(userId, email, name, roles);
             String refreshToken = refreshTokenService.createAndStore(userId, email, name, roles);

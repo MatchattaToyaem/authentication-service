@@ -1,5 +1,6 @@
 package edu.oconnor.authenticationservice.config;
 
+import edu.oconnor.authenticationservice.service.AzureGraphService;
 import edu.oconnor.authenticationservice.service.JwtTokenProvider;
 import edu.oconnor.authenticationservice.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,5 +40,13 @@ public class TokenConfiguration {
     public RefreshTokenService refreshTokenService(JdbcTemplate jdbcTemplate,
                                                    JwtTokenProvider tokenProvider) {
         return new RefreshTokenService(jdbcTemplate, tokenProvider);
+    }
+
+    @Bean
+    public AzureGraphService azureGraphService(
+            @Value("${azure.tenant-id}") String tenantId,
+            @Value("${azure.client-id}") String clientId,
+            @Value("${azure.client-secret}") String clientSecret) {
+        return new AzureGraphService(tenantId, clientId, clientSecret);
     }
 }

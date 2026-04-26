@@ -29,6 +29,9 @@ properties:
       - name: jwt-issuer-uri
         keyVaultUrl: https://ai-platform-keyvault-01.vault.azure.net/secrets/jwt-issuer-uri
         identity: System
+      - name: azure-client-secret
+        keyVaultUrl: https://ai-platform-keyvault-01.azure.net/secrets/azure-client-secret
+        identity: System
     ingress:
       external: true
       targetPort: 8080
@@ -61,6 +64,12 @@ properties:
           # Directs Spring Boot's rolling file appender to the shared log volume
           - name: LOGGING_FILE_NAME
             value: "/var/log/app/authentication-service.log"
+          - name: AZURE_TENANT_ID
+            value: "dcd857fa-da1c-42e4-801b-702d52e946b1"
+          - name: AZURE_CLIENT_ID
+            value: azure-client-id
+          - name: AZURE_CLIENT_SECRET
+            secretRef: azure-client-secret
         volumeMounts:
           - volumeName: app-logs
             mountPath: /var/log/app
