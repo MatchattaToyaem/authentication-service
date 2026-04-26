@@ -37,6 +37,7 @@ definitions:
               az containerapp update \
                 --name authentication-service \
                 --resource-group ai-platform \
+                --container-name authentication-service \
                 --image oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT
             else
               az containerapp create \
