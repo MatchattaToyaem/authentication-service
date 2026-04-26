@@ -28,17 +28,17 @@ definitions:
               --password $AZURE_CLIENT_SECRET
               --tenant $AZURE_TENANT_ID
 
-          # Inject secrets into yaml
+          # Inject secrets and the exact commit image tag into yaml
           - sed -i "s/PLACEHOLDER_ACR/$ACR_PASSWORD/g" authentication-service.yaml
           - sed -i "s/PLACEHOLDER_VAULT/$AZURE_KEY_VAULT_NAME/g" authentication-service.yaml
+          - sed -i "s|authentication-service:latest|authentication-service:$BITBUCKET_COMMIT|g" authentication-service.yaml
 
           - |
             if az containerapp show --name authentication-service --resource-group ai-platform 2>/dev/null; then
               az containerapp update \
                 --name authentication-service \
                 --resource-group ai-platform \
-                --container-name authentication-service \
-                --image oconnoraiplatform.azurecr.io/authentication-service:$BITBUCKET_COMMIT
+                --yaml authentication-service.yaml
             else
               az containerapp create \
                 --name authentication-service \
